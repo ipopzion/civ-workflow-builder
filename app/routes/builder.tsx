@@ -1,4 +1,5 @@
-import { Toolkit } from "~/components/builder/Toolkit";
+import Toolkit from "~/components/builder/Toolkit";
+import WorkflowCanvas from "~/components/builder/WorkflowCanvas";
 
 export default function BuilderPage() {
   return (
@@ -10,7 +11,7 @@ export default function BuilderPage() {
       <div className="flex flex-1 overflow-hidden">
         <Toolkit />
         <main className="flex-1 bg-gray-50 flex items-center justify-center">
-          <p className="text-sm text-gray-400 font-mono">Canvas coming soon</p>
+          <WorkflowCanvas />
         </main>
       </div>
     </div>

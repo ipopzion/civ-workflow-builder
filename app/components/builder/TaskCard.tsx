@@ -1,4 +1,4 @@
-import type { WorkflowTask } from '../../store/workflowStore'
+import { useWorkflowStore, type WorkflowTask } from '../../store/workflowStore'
 
 const TASK_TYPES = {
   default: { icon: '#', accent: '#798dac' },
@@ -6,6 +6,7 @@ const TASK_TYPES = {
 
 export function TaskCard({ task, index }: { task: WorkflowTask; index: number }) {
   const meta = TASK_TYPES[task.type]
+  const { removeTask } = useWorkflowStore()
 
   return (
     <div
@@ -24,6 +25,14 @@ export function TaskCard({ task, index }: { task: WorkflowTask; index: number })
         <p className="text-sm font-medium text-gray-800 truncate">{task.label}</p>
         <p className="text-xs text-gray-400 font-mono uppercase tracking-wide">{task.type}</p>
       </div>
+
+      <button
+        onClick={() => removeTask(task.id)}
+        className="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-400 transition-all text-lg leading-none shrink-0"
+        title="Remove task"
+      >
+        ×
+      </button>
     </div>
   )
 }

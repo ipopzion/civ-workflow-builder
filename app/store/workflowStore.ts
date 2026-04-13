@@ -9,6 +9,7 @@ export interface WorkflowTask {
 interface WorkflowStore {
   tasks: WorkflowTask[]
   addTask: (type: 'default') => void
+  removeTask: (id: string) => void
 }
 
 export const useWorkflowStore = create<WorkflowStore>((set) => ({
@@ -19,5 +20,9 @@ export const useWorkflowStore = create<WorkflowStore>((set) => ({
         ...state.tasks,
         { id: crypto.randomUUID(), type, label: 'Placeholder' },
       ],
+    })),
+  removeTask: (id) =>
+    set((state) => ({
+      tasks: state.tasks.filter((task) => task.id !== id),
     })),
 }))

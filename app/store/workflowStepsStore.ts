@@ -42,7 +42,7 @@ const defaultMetadata: WorkflowMetadata = {
   updatedAt: new Date().toISOString(),
 }
 
-export const useWorkflowStepsStore = create<WorkflowStepsStore>((set) => ({
+export const useWorkflowStepsStore = create<WorkflowStepsStore>((set, get) => ({
   tasks: [],
   metadata: defaultMetadata,
   isImporting: false,
@@ -90,7 +90,7 @@ export const useWorkflowStepsStore = create<WorkflowStepsStore>((set) => ({
     })),
 
   exportWorkflow: () => {
-    const { tasks, metadata } = useWorkflowStepsStore.getState()
+    const { tasks, metadata } = get()
     WorkflowService.exportWorkflow(tasks, metadata)
   },
 

@@ -50,7 +50,6 @@ export const useWorkflowStepsStore = create<WorkflowStepsStore>((set) => ({
         id: task.id,
         type: task.type,
         inputs: task.inputs || {},
-        status: task.status,
       }))
     }
 

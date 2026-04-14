@@ -6,7 +6,6 @@ export function ExecutionPanel() {
   const { tasks, exportWorkflow } = useWorkflowStepsStore()
   const { runWorkflow, runNextStep } = useExecutionStore()
 
-  // Check if there are any pending tasks (not completed)
   const hasPendingTasks = tasks.some(task => task.status !== 'success')
   const hasTasks = tasks.length > 0
 
@@ -53,12 +52,6 @@ export function ExecutionPanel() {
 
       {/* Content area */}
       <div className="px-4 py-4 flex flex-col gap-4 flex-1">
-        <div className="flex flex-col gap-1">
-          <p className="text-xs text-gray-400">Tasks queued</p>
-          <p className="text-2xl font-semibold text-gray-800">{tasks.length}</p>
-        </div>
-
-        {/* Optional: Show task status summary */}
         <div className="flex flex-col gap-1 mt-2">
           <p className="text-xs text-gray-400">Status</p>
           <div className="flex gap-2 text-xs">

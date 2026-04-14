@@ -1,8 +1,11 @@
 export type TaskType = 'log' | 'email' | 'calculation'
 
+export type TaskStatus = 'idle' | 'success' | 'warning' | 'error'
+
 export interface WorkflowTask {
   id: string
   type: TaskType
+  status: TaskStatus
 }
 
 export const TASK_TYPES: Record<TaskType, {

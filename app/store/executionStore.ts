@@ -24,16 +24,19 @@ export const useExecutionStore = create<ExecutionStore>((set) => ({
   clearLog: () => set({ executionLog: [] }),
 
   runWorkflow: () => {
-    const { tasks } = useWorkflowStepsStore.getState()
+    const { tasks, setTaskStatus } = useWorkflowStepsStore.getState()
 
     if (tasks.length === 0) return
 
-    const entries: ExecutionEntry[] = tasks.map((task) => ({
-      timestamp: timestamp(),
-      level: 'LOG',
-      stage: TASK_TYPES[task.type].label,
-      output: `Executed task "${TASK_TYPES[task.type].label}"`,
-    }))
+    const entries: ExecutionEntry[] = tasks.map((task) => {
+      setTaskStatus(task.id, 'success')
+      return {
+        timestamp: timestamp(),
+        level: 'LOG',
+        stage: TASK_TYPES[task.type].label,
+        output: `Executed task "${TASK_TYPES[task.type].label}"`,
+      }
+    })
 
     set({ executionLog: entries })
   },

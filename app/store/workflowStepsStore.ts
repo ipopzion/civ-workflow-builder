@@ -3,8 +3,19 @@ import { WorkflowService, type ImportedWorkflow } from '~/services/workflowPersi
 import type { TaskType } from '~/taskLibrary'
 import type { TaskStatus, WorkflowTask } from '~/types/workflow'
 
+interface WorkflowMetadata {
+  name: string
+  description: string
+  maxRetries: number
+  visibility: 'private' | 'team' | 'public'
+  timeout: number // seconds
+  createdAt?: string
+  updatedAt?: string
+}
+
 interface WorkflowStepsStore {
   tasks: WorkflowTask[]
+  metadata: WorkflowMetadata
   isImporting: boolean
   importError: string | null
   addTask: (type: TaskType) => void
@@ -12,14 +23,26 @@ interface WorkflowStepsStore {
   setTaskInput: (id: string, key: string, value: string) => void
   setTaskOutputs: (id: string, outputs: Record<string, string>) => void
   setTaskStatus: (id: string, status: TaskStatus) => void
+  updateMetadata: (data: Partial<WorkflowMetadata>) => void
   exportWorkflow: () => void
   importWorkflow: (file: File) => Promise<void>
   clearWorkflow: () => void
   clearImportError: () => void
 }
 
+const defaultMetadata: WorkflowMetadata = {
+  name: 'Untitled Workflow',
+  description: '',
+  maxRetries: 3,
+  visibility: 'private',
+  timeout: 300,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+}
+
 export const useWorkflowStepsStore = create<WorkflowStepsStore>((set) => ({
   tasks: [],
+  metadata: defaultMetadata,
   isImporting: false,
   importError: null,
 
@@ -53,6 +76,15 @@ export const useWorkflowStepsStore = create<WorkflowStepsStore>((set) => ({
   setTaskStatus: (id, status) =>
     set((state) => ({
       tasks: state.tasks.map((t) => t.id === id ? { ...t, status } : t),
+    })),
+
+  updateMetadata: (updates) =>
+    set((state) => ({
+      metadata: {
+        ...state.metadata,
+        ...updates,
+        updatedAt: new Date().toISOString(),
+      },
     })),
 
   exportWorkflow: () => {

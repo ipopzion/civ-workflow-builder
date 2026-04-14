@@ -1,6 +1,6 @@
 import type { TaskType } from "~/taskLibrary"
 
-export type TaskStatus = 'idle' | 'success' | 'warning' | 'error'
+export type TaskStatus = 'idle' | 'success' | 'warning' | 'error' | 'running'
 
 export interface WorkflowTask {
   id: string

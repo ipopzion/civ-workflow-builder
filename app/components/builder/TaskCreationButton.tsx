@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import { useWorkflowStepsStore } from '../../store/workflowStepsStore'
-import { TASK_TYPES } from '../../types/workflow'
-import type { TaskType } from '../../types/workflow'
+import { getTaskType, type TaskType } from '~/taskTypes'
 
 export function TaskCreationButton({ type }: { type: TaskType }) {
   const { addTask } = useWorkflowStepsStore()
-  const meta = TASK_TYPES[type]
+  const meta = getTaskType(type)
   const [showHint, setShowHint] = useState(false)
 
   return (
@@ -14,7 +13,7 @@ export function TaskCreationButton({ type }: { type: TaskType }) {
         onClick={() => addTask(type)}
         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 border border-gray-100 hover:border-gray-200 transition-all text-left"
       >
-        <span className="text-base w-6 text-center shrink-0" style={{ color: meta.accent }}>
+        <span className="text-base w-6 text-center shrink-0">
           {meta.icon}
         </span>
         <span className="text-sm font-medium text-gray-700 flex-1">{meta.label}</span>

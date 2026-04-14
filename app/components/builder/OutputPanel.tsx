@@ -2,6 +2,7 @@ import { useExecutionStore } from '../../store/executionStore'
 
 const LEVEL_STYLES = {
   LOG: 'text-indigo-400',
+  WARN: 'text-yellow-400',
   ERROR: 'text-red-400',
 }
 
@@ -35,7 +36,7 @@ export function OutputPanel() {
                   {entry.level}
                 </span>
                 <span className="text-gray-500 shrink-0">{entry.stage}::</span>
-                <span className="text-gray-700">{entry.output}</span>
+                <span className="text-gray-700">{JSON.stringify(entry.output)}</span>
               </div>
             ))}
           </div>

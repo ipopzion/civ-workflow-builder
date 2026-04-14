@@ -1,4 +1,4 @@
-import type { TaskType } from "~/taskTypes"
+import type { TaskType } from "~/taskLibrary"
 
 export type TaskStatus = 'idle' | 'success' | 'warning' | 'error'
 

@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import type { ExecutionEntry } from '../types/workflow'
 import { useWorkflowStepsStore } from './workflowStepsStore'
-import { getTaskType } from '~/taskTypes'
+import { getTaskType } from '~/taskLibrary'
 
 interface ExecutionStore {
   executionLog: ExecutionEntry[]

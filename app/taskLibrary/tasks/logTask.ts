@@ -1,4 +1,4 @@
-import type { TaskTypeDefinition } from './types'
+import type { TaskTypeDefinition } from '../types'
 
 export const logTask: TaskTypeDefinition = {
   type: 'log',

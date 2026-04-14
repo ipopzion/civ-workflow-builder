@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useWorkflowStepsStore } from '../../store/workflowStepsStore'
-import { getTaskType, type TaskType } from '~/taskTypes'
+import { getTaskType, type TaskType } from '~/taskLibrary'
 
 export function TaskCreationButton({ type }: { type: TaskType }) {
   const { addTask } = useWorkflowStepsStore()

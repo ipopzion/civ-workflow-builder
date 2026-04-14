@@ -1,5 +1,5 @@
 import { TaskCreationButton } from './TaskCreationButton'
-import { taskTypeRegistry, type TaskType } from '~/taskTypes'
+import { taskTypeRegistry, type TaskType } from '~/taskLibrary'
 
 export default function ToolkitPanel() {
   const taskTypes = taskTypeRegistry

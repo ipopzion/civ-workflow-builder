@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import type { WorkflowTask } from '~/types/workflow'
 import { useWorkflowStepsStore } from '../../store/workflowStepsStore'
-import { getTaskType } from '~/taskTypes'
+import { getTaskType } from '~/taskLibrary'
+import { InputField } from './InputField'
 
 const STATUS_STYLES = {
   idle: 'border-gray-200 bg-white',
@@ -81,31 +82,30 @@ export function TaskCard({ task, index }: { task: WorkflowTask; index: number })
             {inputEntries.map((field) => (
               <div key={field.key}>
                 <label className="text-xs text-gray-400 mb-0.5 block">{field.label}</label>
-                <input
-                  type={field.type === 'number' ? 'number' : 'text'}
-                  placeholder={field.placeholder}
+                <InputField
+                  field={field}
                   value={task.inputs?.[field.key] ?? ''}
-                  onChange={(e) => setTaskInput(task.id, field.key, e.target.value)}
-                  onClick={(e) => e.stopPropagation()}
-                  className="w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 text-gray-700 placeholder-gray-300 focus:outline-none focus:border-indigo-400 transition-colors"
+                  onChange={(value) => setTaskInput(task.id, field.key, value)}
                 />
               </div>
             ))}
           </div>
 
           {/* Outputs */}
-          <div className="flex-1 flex flex-col gap-2">
+          < div className="flex-1 flex flex-col gap-2" >
             <p className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-1">
               Outputs
             </p>
-            {outputEntries.map((field) => (
-              <div key={field.key}>
-                <label className="text-xs text-gray-400 mb-0.5 block">{field.label}</label>
-                <div className="w-full text-xs border border-gray-100 rounded-lg px-2 py-1.5 text-gray-400 font-mono bg-gray-50">
-                  {task.outputs?.[field.key] ?? '—'}
+            {
+              outputEntries.map((field) => (
+                <div key={field.key}>
+                  <label className="text-xs text-gray-400 mb-0.5 block">{field.label}</label>
+                  <div className="w-full text-xs border border-gray-100 rounded-lg px-2 py-1.5 text-gray-400 font-mono bg-gray-50">
+                    {task.outputs?.[field.key] ?? '—'}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            }
           </div>
 
         </div>

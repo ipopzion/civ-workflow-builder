@@ -47,7 +47,8 @@ async function executeOneStep(task: any) {
   return { status, output, stage: meta.label }
 }
 
-function saveToHistory(startTime: number, tasks: any[], entries: ExecutionEntry[]) {
+function saveToHistory(startTime: number, entries: ExecutionEntry[]) {
+  const tasks = useWorkflowStepsStore.getState().tasks
   const successfulSteps = tasks.filter(t => t.status === 'success').length
   const failedSteps = tasks.filter(t => t.status === 'error').length
 
@@ -113,7 +114,7 @@ export const useExecutionStore = create<ExecutionStore>((set, get) => ({
         }
       }
 
-      saveToHistory(startTime, tasks, entries)
+      saveToHistory(startTime, entries)
     } finally {
       set({ executionLog: entries, isRunning: false })
     }
@@ -148,7 +149,7 @@ export const useExecutionStore = create<ExecutionStore>((set, get) => ({
       const isComplete = remainingTasks.length === 0 || status === 'error'
 
       if (isComplete) {
-        saveToHistory(startTime, tasks, newLog)
+        saveToHistory(startTime, newLog)
       }
     } finally {
       set({ isRunning: false })

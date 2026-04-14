@@ -20,7 +20,7 @@ interface ExecutionHistoryStore {
   runs: WorkflowRun[]
   addRun: (run: WorkflowRun) => void
   clearHistory: () => void
-  getRun: (id: string) => WorkflowRun | undefined
+  getRun: (id: string | undefined) => WorkflowRun | undefined
 }
 
 export const useExecutionHistoryStore = create<ExecutionHistoryStore>()(
@@ -39,6 +39,7 @@ export const useExecutionHistoryStore = create<ExecutionHistoryStore>()(
       },
 
       getRun: (id) => {
+        if (!id) return undefined
         return get().runs.find(run => run.id === id)
       }
     }),

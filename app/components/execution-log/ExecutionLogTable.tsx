@@ -1,4 +1,5 @@
 
+import { Link } from 'react-router'
 import { useExecutionHistoryStore } from '../../store/executionHistoryStore'
 
 export default function ExecutionLogTable() {
@@ -45,7 +46,12 @@ export default function ExecutionLogTable() {
           runs.map((run) => (
             <tr key={run.id} className="hover:bg-gray-50 transition-colors">
               <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
-                {run.id.slice(0, 8)}...
+                <Link
+                  to={`/execution-log/${run.id}`}
+                  className="group inline-flex items-center gap-1 text-sm font-mono text-indigo-500 hover:text-indigo-700 transition-colors duration-200"
+                >
+                  {run.id.slice(0, 8)}...
+                </Link>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
                 {run.workflowName?.length > 30 ? run.workflowName.slice(0, 30) + '...' : run.workflowName}
@@ -72,14 +78,6 @@ export default function ExecutionLogTable() {
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                 {formatDuration(run.duration)}
               </td>
-              {/* <td className="px-6 py-4 whitespace-nowrap text-sm">
-                <a
-                  href={`/execution-log/${run.id}`}
-                  className="text-indigo-600 hover:text-indigo-900 font-medium"
-                >
-                  View Details →
-                </a>
-              </td> */}
             </tr>
           ))
         )}

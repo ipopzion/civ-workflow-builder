@@ -1,14 +1,9 @@
 import { create } from 'zustand'
-
-export interface WorkflowTask {
-  id: string
-  type: 'default'
-  label: string
-}
+import type { TaskType, WorkflowTask } from '~/types/workflow'
 
 interface WorkflowStore {
   tasks: WorkflowTask[]
-  addTask: (type: 'default') => void
+  addTask: (type: TaskType) => void
   removeTask: (id: string) => void
 }
 

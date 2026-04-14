@@ -1,8 +1,5 @@
-import { useWorkflowStore, type WorkflowTask } from '../../store/workflowStore'
-
-const TASK_TYPES = {
-  default: { icon: '#', accent: '#798dac' },
-}
+import { TASK_TYPES, type WorkflowTask } from '~/types/workflow';
+import { useWorkflowStore } from '../../store/workflowStore'
 
 export function TaskCard({ task, index }: { task: WorkflowTask; index: number }) {
   const meta = TASK_TYPES[task.type]
@@ -22,7 +19,7 @@ export function TaskCard({ task, index }: { task: WorkflowTask; index: number })
       </span>
 
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-gray-800 truncate">{task.label}</p>
+        <p className="text-sm font-medium text-gray-800 truncate">{meta.label}</p>
         <p className="text-xs text-gray-400 font-mono uppercase tracking-wide">{task.type}</p>
       </div>
 

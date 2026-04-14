@@ -1,8 +1,7 @@
-import { useWorkflowStore } from '../../store/workflowStore'
+import { TASK_TYPES, type TaskType } from '~/types/workflow'
+import { TaskCreationButton } from './TaskCreationButton'
 
 export default function Toolkit() {
-  const { addTask } = useWorkflowStore()
-
   return (
     <aside className="w-56 bg-white flex flex-col shrink-0 border-r border-gray-100">
       <div className="px-4 py-5 border-b border-gray-100">
@@ -11,13 +10,10 @@ export default function Toolkit() {
         </p>
       </div>
 
-      <div className="px-3 py-4">
-        <button
-          onClick={() => addTask('default')}
-          className="w-full px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl transition-colors"
-        >
-          + Add Task
-        </button>
+      <div className="px-3 py-4 flex flex-col gap-2">
+        {(Object.keys(TASK_TYPES) as TaskType[]).map((type) => (
+          <TaskCreationButton key={type} type={type} />
+        ))}
       </div>
     </aside>
   )

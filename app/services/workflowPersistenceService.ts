@@ -1,10 +1,10 @@
+import type { WorkflowMetadata } from '~/store/workflowStepsStore'
 import type { TaskType } from '~/taskLibrary'
 import type { WorkflowTask } from '~/types/workflow'
 
 export interface ExportedWorkflow {
-  version: string
-  exportedAt: string
   tasks: ExportedWorkflowTask[]
+  metadata: WorkflowMetadata
 }
 
 export interface ExportedWorkflowTask {
@@ -15,13 +15,13 @@ export interface ExportedWorkflowTask {
 
 export interface ImportedWorkflow {
   tasks: WorkflowTask[]
+  metadata: WorkflowMetadata
 }
 
 export class WorkflowService {
-  static exportWorkflow(tasks: WorkflowTask[]): void {
+  static exportWorkflow(tasks: WorkflowTask[], metadata: WorkflowMetadata): void {
     const workflowData: ExportedWorkflow = {
-      version: '1.0',
-      exportedAt: new Date().toISOString(),
+      metadata,
       tasks: tasks.map(task => ({
         id: task.id,
         type: task.type,
@@ -66,7 +66,7 @@ export class WorkflowService {
             outputs: {} // Initialize empty outputs
           }))
 
-          resolve({ tasks })
+          resolve({ tasks, metadata: exportedWorkflow.metadata })
         } catch (error) {
           reject(new Error('Failed to parse workflow file'))
         }
@@ -84,15 +84,20 @@ export class WorkflowService {
     return (
       workflow &&
       typeof workflow === 'object' &&
-      typeof workflow.version === 'string' &&
-      typeof workflow.exportedAt === 'string' &&
       Array.isArray(workflow.tasks) &&
       workflow.tasks.every((task: any) =>
         task &&
         typeof task.id === 'string' &&
         typeof task.type === 'string' &&
         typeof task.inputs === 'object'
-      )
+      ) &&
+      workflow.metadata &&
+      typeof workflow.metadata.name === 'string' &&
+      typeof workflow.metadata.description === 'string' &&
+      typeof workflow.metadata.maxRetries === 'number' &&
+      ['private', 'team', 'public'].includes(workflow.metadata.visibility) &&
+      typeof workflow.metadata.createdAt === 'string' &&
+      typeof workflow.metadata.updatedAt === 'string'
     )
   }
 

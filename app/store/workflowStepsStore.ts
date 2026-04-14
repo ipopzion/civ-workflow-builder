@@ -3,8 +3,9 @@ import { WorkflowService, type ImportedWorkflow } from '~/services/workflowPersi
 import type { TaskType } from '~/taskLibrary'
 import type { TaskStatus, WorkflowTask } from '~/types/workflow'
 
-interface WorkflowMetadata {
+export interface WorkflowMetadata {
   name: string
+  version: string
   description: string
   maxRetries: number
   visibility: 'private' | 'team' | 'public'
@@ -32,6 +33,7 @@ interface WorkflowStepsStore {
 
 const defaultMetadata: WorkflowMetadata = {
   name: 'Untitled Workflow',
+  version: '1.0',
   description: '',
   maxRetries: 3,
   visibility: 'private',
@@ -88,8 +90,8 @@ export const useWorkflowStepsStore = create<WorkflowStepsStore>((set) => ({
     })),
 
   exportWorkflow: () => {
-    const { tasks } = useWorkflowStepsStore.getState()
-    WorkflowService.exportWorkflow(tasks)
+    const { tasks, metadata } = useWorkflowStepsStore.getState()
+    WorkflowService.exportWorkflow(tasks, metadata)
   },
 
   importWorkflow: async (file: File) => {
@@ -97,7 +99,7 @@ export const useWorkflowStepsStore = create<WorkflowStepsStore>((set) => ({
 
     try {
       const imported: ImportedWorkflow = await WorkflowService.importWorkflow(file)
-      set({ tasks: imported.tasks, isImporting: false })
+      set({ tasks: imported.tasks, metadata: imported.metadata, isImporting: false })
     } catch (error) {
       set({
         importError: error instanceof Error ? error.message : 'Failed to import workflow',

@@ -1,11 +1,11 @@
-import { useState } from "react"
+import { useWorkflowStepsStore } from "~/store/workflowStepsStore"
 
 export default function WorkflowMetadataInput() {
-  const [workflowName, setWorkflowName] = useState('Untitled Workflow')
-  const [maxRetries, setMaxRetries] = useState(3)
-  const [visibility, setVisibility] = useState<'private' | 'team' | 'public'>('private')
-  const [description, setDescription] = useState('')
-  const [timeout, setTimeout] = useState(300)
+  const { metadata, updateMetadata } = useWorkflowStepsStore()
+
+  const handleMetadataChange = (field: keyof typeof metadata, value: any) => {
+    updateMetadata({ [field]: value })
+  }
 
   return (
     <div className="flex flex-col gap-3">
@@ -20,9 +20,9 @@ export default function WorkflowMetadataInput() {
         <label className="text-xs text-gray-500 font-medium">Name</label>
         <input
           type="text"
-          value={workflowName}
-          onChange={(e) => setWorkflowName(e.target.value)}
-          className="text-sm border border-gray-200 rounded-md px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
+          value={metadata.name}
+          onChange={(e) => handleMetadataChange('name', e.target.value)}
+          className="w-full text-sm text-gray-900 bg-white border border-gray-200 rounded-md px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
           placeholder="Workflow name"
         />
       </div>
@@ -31,10 +31,10 @@ export default function WorkflowMetadataInput() {
       <div className="flex flex-col gap-1">
         <label className="text-xs text-gray-500 font-medium">Description</label>
         <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          value={metadata.description}
+          onChange={(e) => handleMetadataChange('description', e.target.value)}
           rows={2}
-          className="text-sm border border-gray-200 rounded-md px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 resize-none"
+          className="w-full text-sm text-gray-900 bg-white border border-gray-200 rounded-md px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 resize-none"
           placeholder="Optional description..."
         />
       </div>
@@ -47,9 +47,9 @@ export default function WorkflowMetadataInput() {
             type="number"
             min="0"
             max="10"
-            value={maxRetries}
-            onChange={(e) => setMaxRetries(Math.min(10, Math.max(0, parseInt(e.target.value) || 0)))}
-            className="w-20 text-sm border border-gray-200 rounded-md px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
+            value={metadata.maxRetries}
+            onChange={(e) => handleMetadataChange('maxRetries', Math.min(10, Math.max(0, parseInt(e.target.value) || 0)))}
+            className="w-20 text-sm text-gray-900 bg-white border border-gray-200 rounded-md px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
           />
           <span className="text-xs text-gray-400">attempts</span>
         </div>
@@ -64,9 +64,9 @@ export default function WorkflowMetadataInput() {
             min="10"
             max="3600"
             step="10"
-            value={timeout}
-            onChange={(e) => setTimeout(Math.min(3600, Math.max(10, parseInt(e.target.value) || 10)))}
-            className="w-24 text-sm border border-gray-200 rounded-md px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
+            value={metadata.timeout}
+            onChange={(e) => handleMetadataChange('timeout', Math.min(3600, Math.max(10, parseInt(e.target.value) || 10)))}
+            className="w-24 text-sm text-gray-900 bg-white border border-gray-200 rounded-md px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
           />
           <span className="text-xs text-gray-400">seconds</span>
         </div>
@@ -76,15 +76,22 @@ export default function WorkflowMetadataInput() {
       <div className="flex flex-col gap-1">
         <label className="text-xs text-gray-500 font-medium">Visibility</label>
         <select
-          value={visibility}
-          onChange={(e) => setVisibility(e.target.value as typeof visibility)}
-          className="text-sm border border-gray-200 rounded-md px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 bg-white"
+          value={metadata.visibility}
+          onChange={(e) => handleMetadataChange('visibility', e.target.value as typeof metadata.visibility)}
+          className="w-full text-sm text-gray-900 bg-white border border-gray-200 rounded-md px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
         >
           <option value="private">🔒 Private - Only me</option>
           <option value="team">👥 Team - My team members</option>
           <option value="public">🌐 Public - Everyone</option>
         </select>
       </div>
+
+      {/* Last updated info */}
+      {metadata.updatedAt && (
+        <div className="text-xs text-gray-400 mt-1">
+          Last updated: {new Date(metadata.updatedAt).toLocaleString()}
+        </div>
+      )}
     </div>
   )
 }

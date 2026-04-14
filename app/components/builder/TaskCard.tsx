@@ -6,6 +6,7 @@ import { InputField } from './InputField'
 
 const STATUS_STYLES = {
   idle: 'border-gray-200 bg-white',
+  running: 'border-blue-400 bg-blue-50',
   success: 'border-green-400 bg-green-50',
   warning: 'border-yellow-400 bg-yellow-50',
   error: 'border-red-400 bg-red-50',
@@ -13,6 +14,7 @@ const STATUS_STYLES = {
 
 const STATUS_DOT = {
   idle: null,
+  running: 'bg-blue-400',
   success: 'bg-green-400',
   warning: 'bg-yellow-400',
   error: 'bg-red-400',
@@ -32,7 +34,7 @@ export function TaskCard({ task, index }: { task: WorkflowTask; index: number })
 
       {/* Header — always visible */}
       <div
-        className="flex items-center gap-3 px-4 py-3 cursor-pointer select-none"
+        className="group flex items-center gap-3 px-4 py-3 cursor-pointer select-none"
         onClick={() => setExpanded((e) => !e)}
       >
         <span className="font-mono text-xs text-gray-300 w-4 shrink-0">{index + 1}</span>

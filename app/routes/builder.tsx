@@ -1,3 +1,4 @@
+import BuilderPageHeader from "~/components/builder/BuilderPageHeader";
 import { ExecutionPanel } from "~/components/builder/ExecutionPanel";
 import { OutputPanel } from "~/components/builder/OutputPanel";
 import ToolkitPanel from "~/components/builder/ToolkitPanel";
@@ -6,9 +7,7 @@ import WorkflowCanvas from "~/components/builder/WorkflowCanvas";
 export default function BuilderPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <h1 className="text-xl font-semibold text-gray-900">Workflow Builder</h1>
-      </header>
+      <BuilderPageHeader />
 
       <div className="flex flex-1 overflow-hidden">
         <ToolkitPanel />

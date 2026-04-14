@@ -12,6 +12,7 @@ export function TaskCreationButton({ type }: { type: TaskType }) {
       <button
         onClick={() => addTask(type)}
         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 border border-gray-100 hover:border-gray-200 transition-all text-left"
+        data-testid={`task-creation-button-${type}`}
       >
         <span className="text-base w-6 text-center shrink-0">
           {meta.icon}

@@ -1,4 +1,5 @@
 import type { WorkflowTask } from "~/types/workflow"
+import type { TaskType } from "."
 
 export type FieldType = 'text' | 'number' | 'select'
 
@@ -12,7 +13,7 @@ export interface FieldSchema {
 }
 
 export interface TaskTypeDefinition {
-  type: string
+  type: TaskType
   label: string
   description: string
   icon: string

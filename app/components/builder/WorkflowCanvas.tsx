@@ -1,8 +1,8 @@
-import { useWorkflowStore } from "~/store/workflowStore"
+import { useWorkflowStepsStore } from "~/store/workflowStepsStore"
 import { TaskCard } from "./TaskCard"
 
 export default function WorkflowCanvas() {
-  const { tasks } = useWorkflowStore()
+  const { tasks } = useWorkflowStepsStore()
 
   return (
     <div className="flex-1 bg-gray-50 flex flex-col items-center justify-center gap-6">

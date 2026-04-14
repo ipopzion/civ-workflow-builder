@@ -29,5 +29,11 @@ export const TASK_TYPES: Record<TaskType, {
     label: 'Calculate',
     description: 'Executes a mathematical calculation.',
   },
+}
 
+export interface ExecutionEntry {
+  timestamp: string
+  level: 'LOG' | 'ERROR'
+  stage: string
+  output: string
 }

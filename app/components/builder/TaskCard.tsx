@@ -1,9 +1,9 @@
 import { TASK_TYPES, type WorkflowTask } from '~/types/workflow';
-import { useWorkflowStore } from '../../store/workflowStore'
+import { useWorkflowStepsStore } from '../../store/workflowStepsStore'
 
 export function TaskCard({ task, index }: { task: WorkflowTask; index: number }) {
   const meta = TASK_TYPES[task.type]
-  const { removeTask } = useWorkflowStore()
+  const { removeTask } = useWorkflowStepsStore()
 
   return (
     <div

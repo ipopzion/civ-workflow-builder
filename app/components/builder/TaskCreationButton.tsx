@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { useWorkflowStore } from '../../store/workflowStore'
+import { useWorkflowStepsStore } from '../../store/workflowStepsStore'
 import { TASK_TYPES } from '../../types/workflow'
 import type { TaskType } from '../../types/workflow'
 
 export function TaskCreationButton({ type }: { type: TaskType }) {
-  const { addTask } = useWorkflowStore()
+  const { addTask } = useWorkflowStepsStore()
   const meta = TASK_TYPES[type]
   const [showHint, setShowHint] = useState(false)
 

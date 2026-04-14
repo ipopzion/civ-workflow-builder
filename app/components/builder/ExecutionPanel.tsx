@@ -1,11 +1,9 @@
-import { useWorkflowStore } from '../../store/workflowStore'
+import { useExecutionStore } from '~/store/executionStore'
+import { useWorkflowStepsStore } from '../../store/workflowStepsStore'
 
 export function ExecutionPanel() {
-  const tasks = useWorkflowStore((s) => s.tasks)
-
-  function handleRun() {
-    // execution logic coming next commit
-  }
+  const tasks = useWorkflowStepsStore((s) => s.tasks)
+  const runWorkflow = useExecutionStore((s) => s.runWorkflow)
 
   return (
     <aside className="w-64 bg-white flex flex-col shrink-0 border-l border-gray-100">
@@ -22,7 +20,7 @@ export function ExecutionPanel() {
         </div>
 
         <button
-          onClick={handleRun}
+          onClick={runWorkflow}
           disabled={tasks.length === 0}
           className="w-full px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-100 disabled:text-gray-300 text-white text-sm font-medium rounded-xl transition-colors"
         >

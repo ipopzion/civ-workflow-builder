@@ -1,4 +1,5 @@
 import { ExecutionPanel } from "~/components/builder/ExecutionPanel";
+import { OutputPanel } from "~/components/builder/OutputPanel";
 import ToolkitPanel from "~/components/builder/ToolkitPanel";
 import WorkflowCanvas from "~/components/builder/WorkflowCanvas";
 
@@ -16,6 +17,8 @@ export default function BuilderPage() {
         </main>
         <ExecutionPanel />
       </div>
+
+      <OutputPanel />
     </div>
   )
 }

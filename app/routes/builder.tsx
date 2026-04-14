@@ -1,4 +1,5 @@
-import Toolkit from "~/components/builder/Toolkit";
+import { ExecutionPanel } from "~/components/builder/ExecutionPanel";
+import ToolkitPanel from "~/components/builder/ToolkitPanel";
 import WorkflowCanvas from "~/components/builder/WorkflowCanvas";
 
 export default function BuilderPage() {
@@ -9,10 +10,11 @@ export default function BuilderPage() {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <Toolkit />
+        <ToolkitPanel />
         <main className="flex-1 bg-gray-50 flex items-center justify-center">
           <WorkflowCanvas />
         </main>
+        <ExecutionPanel />
       </div>
     </div>
   )

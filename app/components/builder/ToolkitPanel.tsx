@@ -1,7 +1,7 @@
 import { TASK_TYPES, type TaskType } from '~/types/workflow'
 import { TaskCreationButton } from './TaskCreationButton'
 
-export default function Toolkit() {
+export default function ToolkitPanel() {
   return (
     <aside className="w-56 bg-white flex flex-col shrink-0 border-r border-gray-100">
       <div className="px-4 py-5 border-b border-gray-100">

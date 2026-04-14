@@ -23,7 +23,7 @@ export const useExecutionStore = create<ExecutionStore>((set) => ({
 
   clearLog: () => set({ executionLog: [] }),
 
-  runWorkflow: () => {
+  runWorkflow: async () => {
     const { tasks, setTaskStatus, setTaskOutputs } = useWorkflowStepsStore.getState()
 
     if (tasks.length === 0) return
@@ -33,7 +33,7 @@ export const useExecutionStore = create<ExecutionStore>((set) => ({
       const task = tasks[i]
       const meta = getTaskType(task.type)
 
-      const { status, output } = meta.execute(task)
+      const { status, output } = await meta.execute(task)
 
       entries.push({
         timestamp: timestamp(),

@@ -1,4 +1,5 @@
 import { calculationTask } from "./tasks/calculationTask"
+import { emailTask } from "./tasks/emailTask"
 import { logTask } from "./tasks/logTask"
 import type { TaskTypeDefinition } from "./types"
 
@@ -6,8 +7,8 @@ export type TaskType = 'log' | 'email' | 'calculation'
 
 export const taskTypeRegistry: Record<TaskType, TaskTypeDefinition> = {
   log: logTask,
-  email: logTask, // To be implemented
-  calculation: calculationTask, // To be implemented
+  email: emailTask,
+  calculation: calculationTask,
 }
 
 export function getTaskType(type: TaskType): TaskTypeDefinition {

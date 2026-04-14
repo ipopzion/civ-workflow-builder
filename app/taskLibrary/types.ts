@@ -18,7 +18,7 @@ export interface TaskTypeDefinition {
   icon: string
   inputFields: FieldSchema[]
   outputFields: FieldSchema[]
-  execute: (task: WorkflowTask) => ExecutionResult
+  execute: (task: WorkflowTask) => ExecutionResult | Promise<ExecutionResult>
 }
 
 export interface ExecutionResult {

@@ -24,6 +24,7 @@ interface WorkflowStepsStore {
   setTaskInput: (id: string, key: string, value: string) => void
   setTaskOutputs: (id: string, outputs: Record<string, string>) => void
   setTaskStatus: (id: string, status: TaskStatus) => void
+  setTaskPosition: (id: string, x: number, y: number) => void
   updateMetadata: (data: Partial<WorkflowMetadata>) => void
   exportWorkflow: () => void
   importWorkflow: (file: File) => Promise<void>
@@ -52,8 +53,20 @@ export const useWorkflowStepsStore = create<WorkflowStepsStore>((set, get) => ({
     set((state) => ({
       tasks: [
         ...state.tasks,
-        { id: crypto.randomUUID(), type, status: 'idle' },
+        {
+          id: crypto.randomUUID(), type, status: 'idle', position: {
+            x: 40 + state.tasks.length * 220,
+            y: 80,
+          }
+        },
       ],
+    })),
+
+  setTaskPosition: (id, x, y) =>
+    set((state) => ({
+      tasks: state.tasks.map((t) =>
+        t.id === id ? { ...t, position: { x, y } } : t
+      ),
     })),
 
   removeTask: (id) =>

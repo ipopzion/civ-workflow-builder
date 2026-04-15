@@ -16,6 +16,8 @@
     "isbot": "^5.1.36",
     "lucide-react": "^1.8.0",
     "react": "^19.2.4",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19.2.4",
     "react-router": "7.14.0",
     "react-router-dom": "^7.14.1",

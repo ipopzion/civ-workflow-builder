@@ -37,7 +37,7 @@ interface TaskNode {
 
 function FlowContent() {
   const { tasks, setTaskPosition, removeTask } = useWorkflowStepsStore()
-  const { connections, addConnection, removeConnection, removeConnectionsForTask } = useConnectionStore()
+  const { connections, addConnection, removeConnection, removeConnectionsForTask, selectConnection, selectedConnectionId } = useConnectionStore()
   const { fitView } = useReactFlow()
 
   const [nodes, setNodes, onNodesChange] = useNodesState<TaskNode>([])
@@ -66,10 +66,14 @@ function FlowContent() {
       targetHandle: conn.targetInputKey,
       type: 'smoothstep',
       animated: true,
-      style: { stroke: '#6366f1', strokeWidth: 2 },
+      selected: selectedConnectionId === conn.id,
+      style: {
+        stroke: selectedConnectionId === conn.id ? '#3b82f6' : '#94a3b8',
+        strokeWidth: selectedConnectionId === conn.id ? 3 : 2,
+      },
     }))
     setEdges(newEdges)
-  }, [connections, setEdges])
+  }, [connections, setEdges, selectedConnectionId])
 
   const isValidConnection = useCallback(
     (connection: Connection) => {
@@ -120,6 +124,11 @@ function FlowContent() {
     [setTaskPosition]
   )
 
+  const onEdgeClick = useCallback((event: React.MouseEvent, edge: Edge) => {
+    event.stopPropagation()
+    selectConnection(edge.id)
+  }, [selectConnection])
+
   const onEdgesDelete = useCallback(
     (edgesToDelete: Edge[]) => {
       edgesToDelete.forEach((edge) => {
@@ -139,6 +148,10 @@ function FlowContent() {
     [removeConnectionsForTask, removeTask]
   )
 
+  const onPaneClick = useCallback(() => {
+    selectConnection(null)
+  }, [selectConnection])
+
   // Fit view on initial load
   useEffect(() => {
     setTimeout(() => fitView({ duration: 200 }), 100)
@@ -154,6 +167,8 @@ function FlowContent() {
       onNodeDragStop={onNodeDragStop}
       onEdgesDelete={onEdgesDelete}
       onNodesDelete={onNodesDelete}
+      onEdgeClick={onEdgeClick}
+      onPaneClick={onPaneClick}
       onConnectStart={() => console.log('Connection started')}
       onConnectEnd={() => console.log('Connection ended')}
       isValidConnection={isValidConnection as IsValidConnection<Edge>}

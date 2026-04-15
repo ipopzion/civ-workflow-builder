@@ -10,6 +10,7 @@ export interface Connection {
 
 interface ConnectionStore {
   connections: Connection[]
+  selectedConnectionId: string | null
   addConnection: (connection: Omit<Connection, 'id'>) => void
   removeConnection: (id: string) => void
   removeConnectionsForTask: (taskId: string) => void
@@ -19,10 +20,13 @@ interface ConnectionStore {
   }
   wouldCreateCycle: (sourceTaskId: string, targetTaskId: string) => boolean
   getDependencies: (taskId: string) => string[]
+  selectConnection: (id: string | null) => void
+  deleteSelectedConnection: () => void
 }
 
 export const useConnectionStore = create<ConnectionStore>((set, get) => ({
   connections: [],
+  selectedConnectionId: null,
 
   addConnection: (connection) => {
     const id = crypto.randomUUID()
@@ -33,14 +37,16 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
 
   removeConnection: (id) =>
     set((state) => ({
-      connections: state.connections.filter((c) => c.id !== id)
+      connections: state.connections.filter((c) => c.id !== id),
+      selectedConnectionId: state.selectedConnectionId === id ? null : state.selectedConnectionId
     })),
 
   removeConnectionsForTask: (taskId) =>
     set((state) => ({
       connections: state.connections.filter(
         (c) => c.sourceTaskId !== taskId && c.targetTaskId !== taskId
-      )
+      ),
+      selectedConnectionId: null // Clear selection when removing connections for a task
     })),
 
   getConnectionsForTask: (taskId) => {
@@ -51,7 +57,6 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
     }
   },
 
-  // New method: Check if adding a connection would create a cycle
   wouldCreateCycle: (sourceTaskId: string, targetTaskId: string): boolean => {
     const { connections } = get()
 
@@ -102,7 +107,6 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
     return false
   },
 
-  // New method: Get all dependencies for a task (transitive)
   getDependencies: (taskId: string): string[] => {
     const { connections } = get()
     const dependencies = new Set<string>()
@@ -119,5 +123,16 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
 
     collectDependencies(taskId)
     return Array.from(dependencies)
+  },
+
+  selectConnection: (id: string | null) => {
+    set({ selectedConnectionId: id })
+  },
+
+  deleteSelectedConnection: () => {
+    const { selectedConnectionId, removeConnection } = get()
+    if (selectedConnectionId) {
+      removeConnection(selectedConnectionId)
+    }
   }
 }))

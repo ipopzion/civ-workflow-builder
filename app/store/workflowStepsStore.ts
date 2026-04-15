@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { WorkflowService, type ImportedWorkflow } from '~/services/workflowPersistenceService'
 import type { TaskType } from '~/taskLibrary'
 import type { TaskStatus, WorkflowTask } from '~/types/workflow'
+import { useConnectionStore } from './workflowConnectionsStore'
 
 export interface WorkflowMetadata {
   name: string
@@ -69,10 +70,13 @@ export const useWorkflowStepsStore = create<WorkflowStepsStore>((set, get) => ({
       ),
     })),
 
-  removeTask: (id) =>
+  removeTask: (id) => {
+    useConnectionStore.getState().removeConnectionsForTask(id)
+
     set((state) => ({
       tasks: state.tasks.filter((task) => task.id !== id),
-    })),
+    }))
+  },
 
   setTaskInput: (id, key, value) =>
     set((state) => ({

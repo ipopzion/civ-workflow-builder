@@ -3,11 +3,12 @@ import type { FieldSchema } from "~/taskLibrary/types"
 interface FieldInputProps {
   field: FieldSchema
   value: string
+  disabled: boolean
   onChange: (value: string) => void
 }
 
-export function InputField({ field, value, onChange }: FieldInputProps) {
-  const baseClass = "w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 text-gray-700 placeholder-gray-300 focus:outline-none focus:border-indigo-400 transition-colors"
+export function InputField({ field, value, disabled = false, onChange }: FieldInputProps) {
+  const className = `w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 text-gray-700 font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${disabled ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white'}`
 
   if (field.type === 'select') {
     return (
@@ -15,7 +16,7 @@ export function InputField({ field, value, onChange }: FieldInputProps) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onClick={(e) => e.stopPropagation()}
-        className={baseClass}
+        className={className}
       >
         <option value="">Select...</option>
         {field.options?.map((opt) => (
@@ -32,7 +33,8 @@ export function InputField({ field, value, onChange }: FieldInputProps) {
       value={value}
       onChange={(e) => onChange(e.target.value)}
       onClick={(e) => e.stopPropagation()}
-      className={baseClass}
+      className={className}
+      disabled={disabled}
     />
   )
 }

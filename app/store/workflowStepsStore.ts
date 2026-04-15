@@ -111,7 +111,8 @@ export const useWorkflowStepsStore = create<WorkflowStepsStore>((set, get) => ({
 
   exportWorkflow: () => {
     const { tasks, metadata } = get()
-    WorkflowService.exportWorkflow(tasks, metadata)
+    const connections = useConnectionStore.getState().connections
+    WorkflowService.exportWorkflow(tasks, metadata, connections)
   },
 
   importWorkflow: async (file: File) => {
@@ -119,7 +120,23 @@ export const useWorkflowStepsStore = create<WorkflowStepsStore>((set, get) => ({
 
     try {
       const imported: ImportedWorkflow = await WorkflowService.importWorkflow(file)
+
+      // Set tasks
       set({ tasks: imported.tasks, metadata: imported.metadata, isImporting: false })
+
+      // Restore connections
+      const connectionStore = useConnectionStore.getState()
+      // Clear existing connections first
+      connectionStore.connections.forEach(conn => connectionStore.removeConnection(conn.id))
+      // Add imported connections
+      imported.connections.forEach(conn => {
+        connectionStore.addConnection({
+          sourceTaskId: conn.sourceTaskId,
+          sourceOutputKey: conn.sourceOutputKey,
+          targetTaskId: conn.targetTaskId,
+          targetInputKey: conn.targetInputKey,
+        })
+      })
     } catch (error) {
       set({
         importError: error instanceof Error ? error.message : 'Failed to import workflow',

@@ -35,12 +35,18 @@ function createExecutionEntry(stage: string, status: TaskStatus, output: any): E
   }
 }
 
-async function executeOneStep(task: any) {
+async function executeOneStep(task: any, resolvedInputs?: Record<string, any>) {
   const { setTaskStatus, setTaskOutputs } = useWorkflowStepsStore.getState()
   const meta = getTaskType(task.type)
 
   setTaskStatus(task.id, 'running')
-  const { status, output } = await meta.execute(task)
+
+  // Create a task copy with resolved inputs if provided
+  const taskWithInputs = resolvedInputs
+    ? { ...task, inputs: resolvedInputs }
+    : task
+
+  const { status, output } = await meta.execute(taskWithInputs)
   setTaskStatus(task.id, status)
   setTaskOutputs(task.id, output)
 
@@ -88,16 +94,26 @@ export const useExecutionStore = create<ExecutionStore>((set, get) => ({
     const { isRunning } = get()
     if (isRunning) return
 
-    const { tasks } = useWorkflowStepsStore.getState()
+    const { tasks, getExecutionOrder, getTaskInputsWithConnections } = useWorkflowStepsStore.getState()
     if (tasks.length === 0) return
+
+    // Reset all task statuses before running
+    tasks.forEach(task => {
+      useWorkflowStepsStore.getState().setTaskStatus(task.id, 'idle')
+    })
 
     set({ isRunning: true })
     const entries: ExecutionEntry[] = []
     const startTime = Date.now()
 
     try {
-      for (let i = 0; i < tasks.length; i++) {
-        const task = tasks[i]
+      // Get execution order based on dependencies
+      const executionOrder = getExecutionOrder()
+
+      for (const taskId of executionOrder) {
+        const task = tasks.find(t => t.id === taskId)
+        if (!task) continue
+
         const meta = getTaskType(task.type)
 
         // Skip already completed tasks if we want to allow resuming
@@ -106,7 +122,10 @@ export const useExecutionStore = create<ExecutionStore>((set, get) => ({
           continue
         }
 
-        const { status, output, stage } = await executeOneStep(task)
+        // Get resolved inputs from connected tasks
+        const resolvedInputs = getTaskInputsWithConnections(taskId)
+
+        const { status, output, stage } = await executeOneStep(task, resolvedInputs)
         entries.push(createExecutionEntry(stage, status, output))
 
         if (status === 'error') {
@@ -114,6 +133,10 @@ export const useExecutionStore = create<ExecutionStore>((set, get) => ({
         }
       }
 
+      saveToHistory(startTime, entries)
+    } catch (error) {
+      console.error('Workflow execution failed:', error)
+      entries.push(createExecutionEntry('Workflow', 'error', { error: String(error) }))
       saveToHistory(startTime, entries)
     } finally {
       set({ executionLog: entries, isRunning: false })
@@ -124,20 +147,36 @@ export const useExecutionStore = create<ExecutionStore>((set, get) => ({
     const { isRunning } = get()
     if (isRunning) return
 
-    const { tasks } = useWorkflowStepsStore.getState()
+    const { tasks, getExecutionOrder, getTaskInputsWithConnections } = useWorkflowStepsStore.getState()
     if (tasks.length === 0) return
 
-    // Find the first task that is not completed
-    const nextTaskIndex = tasks.findIndex(task => task.status !== 'success')
-    if (nextTaskIndex === -1) return
+    // Get execution order
+    const executionOrder = getExecutionOrder()
 
-    const task = tasks[nextTaskIndex]
+    // Find the next task to execute (first one that's not success or error)
+    let nextTaskId: string | undefined
+    for (const taskId of executionOrder) {
+      const task = tasks.find(t => t.id === taskId)
+      if (task && task.status !== 'success' && task.status !== 'error') {
+        nextTaskId = taskId
+        break
+      }
+    }
+
+    if (!nextTaskId) return
+
+    const task = tasks.find(t => t.id === nextTaskId)
+    if (!task) return
+
     const startTime = Date.now()
 
     set({ isRunning: true })
 
     try {
-      const { status, output, stage } = await executeOneStep(task)
+      // Get resolved inputs from connected tasks
+      const resolvedInputs = getTaskInputsWithConnections(nextTaskId)
+
+      const { status, output, stage } = await executeOneStep(task, resolvedInputs)
       const entry = createExecutionEntry(stage, status, output)
 
       // Append to existing log
@@ -145,12 +184,24 @@ export const useExecutionStore = create<ExecutionStore>((set, get) => ({
       const newLog = [...executionLog, entry]
       set({ executionLog: newLog })
 
-      const remainingTasks = tasks.filter(t => t.status !== 'success' && t.id !== task.id)
+      // Check if workflow is complete (all tasks either success or error)
+      const remainingTasks = executionOrder.filter(taskId => {
+        const t = tasks.find(t => t.id === taskId)
+        return t && t.status !== 'success' && t.status !== 'error'
+      })
+
       const isComplete = remainingTasks.length === 0 || status === 'error'
 
       if (isComplete) {
         saveToHistory(startTime, newLog)
       }
+    } catch (error) {
+      console.error('Step execution failed:', error)
+      const errorEntry = createExecutionEntry(task.type, 'error', { error: String(error) })
+      const { executionLog } = get()
+      const newLog = [...executionLog, errorEntry]
+      set({ executionLog: newLog })
+      saveToHistory(startTime, newLog)
     } finally {
       set({ isRunning: false })
     }

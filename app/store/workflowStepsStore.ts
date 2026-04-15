@@ -31,6 +31,9 @@ interface WorkflowStepsStore {
   importWorkflow: (file: File) => Promise<void>
   clearWorkflow: () => void
   clearImportError: () => void
+  // New methods for connected workflow execution
+  getExecutionOrder: () => string[]
+  getTaskInputsWithConnections: (taskId: string) => Record<string, any>
 }
 
 const defaultMetadata: WorkflowMetadata = {
@@ -127,5 +130,86 @@ export const useWorkflowStepsStore = create<WorkflowStepsStore>((set, get) => ({
 
   clearWorkflow: () => set({ tasks: [] }),
 
-  clearImportError: () => set({ importError: null })
+  clearImportError: () => set({ importError: null }),
+
+  getExecutionOrder: () => {
+    const { tasks } = get()
+    const connections = useConnectionStore.getState().connections
+
+    // Build dependency graph
+    const dependencies = new Map<string, Set<string>>()
+    const dependents = new Map<string, Set<string>>()
+
+    // Initialize for all tasks
+    tasks.forEach(task => {
+      dependencies.set(task.id, new Set())
+      dependents.set(task.id, new Set())
+    })
+
+    // Build graph from connections
+    connections.forEach(conn => {
+      // Target depends on source
+      dependencies.get(conn.targetTaskId)?.add(conn.sourceTaskId)
+      dependents.get(conn.sourceTaskId)?.add(conn.targetTaskId)
+    })
+
+    // Kahn's algorithm for topological sort
+    const inDegree = new Map<string, number>()
+    tasks.forEach(task => {
+      inDegree.set(task.id, dependencies.get(task.id)?.size || 0)
+    })
+
+    const queue: string[] = []
+    const order: string[] = []
+
+    // Start with tasks that have no dependencies
+    inDegree.forEach((degree, taskId) => {
+      if (degree === 0) queue.push(taskId)
+    })
+
+    while (queue.length > 0) {
+      const current = queue.shift()!
+      order.push(current)
+
+      // Reduce in-degree for dependent tasks
+      dependents.get(current)?.forEach(dependent => {
+        const newDegree = (inDegree.get(dependent) || 0) - 1
+        inDegree.set(dependent, newDegree)
+        if (newDegree === 0) {
+          queue.push(dependent)
+        }
+      })
+    }
+
+    // If order doesn't include all tasks, there's a cycle
+    // Return tasks in original order as fallback
+    if (order.length !== tasks.length) {
+      console.warn('Cycle detected in workflow connections, falling back to original order')
+      return tasks.map(t => t.id)
+    }
+
+    return order
+  },
+
+  getTaskInputsWithConnections: (taskId: string) => {
+    const { tasks } = get()
+    const task = tasks.find(t => t.id === taskId)
+    if (!task) return {}
+
+    const connections = useConnectionStore.getState().connections
+    const incomingConnections = connections.filter(c => c.targetTaskId === taskId)
+
+    // Start with manually set inputs
+    const resolvedInputs: Record<string, any> = { ...task.inputs }
+
+    // Override with values from connected outputs
+    incomingConnections.forEach(conn => {
+      const sourceTask = tasks.find(t => t.id === conn.sourceTaskId)
+      if (sourceTask?.outputs && conn.sourceOutputKey in sourceTask.outputs) {
+        resolvedInputs[conn.targetInputKey] = sourceTask.outputs[conn.sourceOutputKey]
+      }
+    })
+
+    return resolvedInputs
+  }
 }))

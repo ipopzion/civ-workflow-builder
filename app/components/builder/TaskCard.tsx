@@ -31,14 +31,32 @@ interface TaskCardProps {
 export function TaskCard({ data }: TaskCardProps) {
   const { task, index } = data
   const meta = getTaskType(task.type)
-  const { removeTask, setTaskInput } = useWorkflowStepsStore()
+  const { removeTask, setTaskInput, getTaskInputsWithConnections } = useWorkflowStepsStore()
   const { getConnectionsForTask } = useConnectionStore()
   const dot = STATUS_DOT[task.status]
   const connections = getConnectionsForTask(task.id)
   const connectedInputs = new Set(connections.incoming.map(c => c.targetInputKey))
 
+  // Get resolved inputs (including connected values)
+  const resolvedInputs = getTaskInputsWithConnections(task.id)
+
   const inputEntries = Object.values(meta.inputFields)
   const outputEntries = Object.values(meta.outputFields)
+
+  // Helper to get display value for an input
+  const getInputDisplayValue = (fieldKey: string) => {
+    const isConnected = connectedInputs.has(fieldKey)
+
+    // If connected, show the resolved value (from source task output)
+    if (isConnected) {
+      const resolvedValue = resolvedInputs[fieldKey]
+      // Show resolved value if available, otherwise show placeholder
+      return resolvedValue !== undefined ? resolvedValue : 'Waiting for connection...'
+    }
+
+    // If not connected, show manually entered value
+    return task.inputs?.[fieldKey] ?? ''
+  }
 
   return (
     <div
@@ -78,6 +96,8 @@ export function TaskCard({ data }: TaskCardProps) {
           <div className="space-y-3 relative">
             {inputEntries.map((field, idx) => {
               const isConnected = connectedInputs.has(field.key)
+              const displayValue = getInputDisplayValue(field.key)
+
               return (
                 <div key={field.key} className="relative">
                   {/* Position handle relative to this container */}
@@ -99,12 +119,27 @@ export function TaskCard({ data }: TaskCardProps) {
                       {field.label}
                       {isConnected && <span className="ml-1 text-green-500">🔗</span>}
                     </label>
-                    <InputField
-                      field={field}
-                      value={task.inputs?.[field.key] ?? ''}
-                      onChange={(value) => setTaskInput(task.id, field.key, value)}
-                      disabled={isConnected}
-                    />
+
+                    {isConnected ? (
+                      // Show read-only display with connected value
+                      <div className={`
+                        w-full text-sm rounded-lg px-2 py-1.5 
+                        ${displayValue !== 'Waiting for connection...'
+                          ? 'bg-green-50 text-green-700 border border-green-200'
+                          : 'bg-gray-50 text-gray-400 border border-gray-200'
+                        }
+                      `}>
+                        {String(displayValue)}
+                      </div>
+                    ) : (
+                      // Show editable input for non-connected fields
+                      <InputField
+                        field={field}
+                        value={displayValue}
+                        onChange={(value) => setTaskInput(task.id, field.key, value)}
+                        disabled={isConnected}
+                      />
+                    )}
                   </div>
                 </div>
               )

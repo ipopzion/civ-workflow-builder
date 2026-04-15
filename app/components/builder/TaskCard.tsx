@@ -26,7 +26,6 @@ const ITEM_TYPE = 'TASK_CARD'
 export function TaskCard({ task, index }: { task: WorkflowTask; index: number }) {
   const meta = getTaskType(task.type)
   const { removeTask, setTaskInput } = useWorkflowStepsStore()
-  const [expanded, setExpanded] = useState(false)
   const dot = STATUS_DOT[task.status]
 
   const [{ isDragging }, drag, dragPreview] = useDrag(() => ({
@@ -58,14 +57,13 @@ export function TaskCard({ task, index }: { task: WorkflowTask; index: number })
         top: task.position.y,
         opacity: isDragging ? 0.4 : 1,
         cursor: 'default',
-        width: '224px',
+        width: '280px',
       }}
     >
       {/* Header — drag handle + collapse toggle */}
       <div
         ref={headerRef}
         className="group flex items-center gap-3 px-4 py-3 cursor-grab active:cursor-grabbing select-none"
-        onClick={() => setExpanded((e) => !e)}
       >
         <span className="font-mono text-xs text-gray-300 w-4 shrink-0">{index + 1}</span>
 
@@ -73,26 +71,9 @@ export function TaskCard({ task, index }: { task: WorkflowTask; index: number })
 
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-gray-800">{meta.label}</p>
-
-          {/* Collapsed preview of input values */}
-          {!expanded && (
-            <div className="flex gap-2 mt-0.5 flex-wrap">
-              {inputEntries.map((field) => (
-                <span key={field.key} className="text-xs text-gray-400 font-mono">
-                  {field.key}=
-                  <span className="text-gray-500">
-                    {task.inputs?.[field.key] || '…'}
-                  </span>
-                </span>
-              ))}
-            </div>
-          )}
         </div>
 
         {dot && <span className={`w-2 h-2 rounded-full shrink-0 ${dot}`} />}
-
-        <span className="text-gray-300 text-xs">{expanded ? '▲' : '▼'}</span>
-
         <button
           onClick={(e) => { e.stopPropagation(); removeTask(task.id) }}
           className="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-400 transition-all text-lg leading-none shrink-0"
@@ -102,44 +83,65 @@ export function TaskCard({ task, index }: { task: WorkflowTask; index: number })
         </button>
       </div>
 
-      {/* Expanded — inputs left, outputs right */}
-      {expanded && (
-        <div className="flex gap-4 px-4 pb-4 pt-1 border-t border-gray-100">
+      <div className="flex px-2 pb-3 pt-1 border-t border-gray-100">
+        {/* Inputs Section - Left side with dots */}
+        <div className="flex-1 relative">
+          <p className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-2 text-center">
+            Inputs
+          </p>
+          <div className="space-y-3">
+            {inputEntries.map((field, idx) => (
+              <div key={field.key} className="relative">
+                {/* Input dot on the left edge */}
+                <div className="absolute -left-3 top-1/2 -translate-y-1/2">
+                  <div className="w-3 h-3 rounded-full bg-blue-400 border-2 border-white shadow-sm cursor-pointer hover:bg-blue-500 transition-colors" />
+                </div>
 
-          {/* Inputs */}
-          <div className="flex-1 flex flex-col gap-2">
-            <p className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-1">
-              Inputs
-            </p>
-            {inputEntries.map((field) => (
-              <div key={field.key}>
-                <label className="text-xs text-gray-400 mb-0.5 block">{field.label}</label>
-                <InputField
-                  field={field}
-                  value={task.inputs?.[field.key] ?? ''}
-                  onChange={(value) => setTaskInput(task.id, field.key, value)}
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Outputs */}
-          <div className="flex-1 flex flex-col gap-2">
-            <p className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-1">
-              Outputs
-            </p>
-            {outputEntries.map((field) => (
-              <div key={field.key}>
-                <label className="text-xs text-gray-400 mb-0.5 block">{field.label}</label>
-                <div className="w-full text-xs border border-gray-100 rounded-lg px-2 py-1.5 text-gray-400 font-mono bg-gray-50">
-                  {task.outputs?.[field.key] ?? '—'}
+                <div className="ml-2">
+                  <label className="text-xs text-gray-400 mb-0.5 block truncate">
+                    {field.label}
+                  </label>
+                  <InputField
+                    field={field}
+                    value={task.inputs?.[field.key] ?? ''}
+                    onChange={(value) => setTaskInput(task.id, field.key, value)}
+                  />
                 </div>
               </div>
             ))}
           </div>
-
         </div>
-      )}
+
+        {/* Divider */}
+        <div className="w-px bg-gray-200 mx-3 my-2" />
+
+        {/* Outputs Section - Right side with dots */}
+        <div className="flex-1 relative">
+          <p className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-2 text-center">
+            Outputs
+          </p>
+          <div className="space-y-3">
+            {outputEntries.map((field, idx) => (
+              <div key={field.key} className="relative">
+                {/* Output dot on the right edge */}
+                <div className="absolute -right-3 top-1/2 -translate-y-1/2">
+                  <div className="w-3 h-3 rounded-full bg-green-400 border-2 border-white shadow-sm cursor-pointer hover:bg-green-500 transition-colors" />
+                </div>
+
+                <div className="mr-2">
+                  <label className="text-xs text-gray-400 mb-0.5 block truncate text-right">
+                    {field.label}
+                  </label>
+                  <div className="w-full text-xs border border-gray-100 rounded-lg px-2 py-1.5 text-gray-400 font-mono bg-gray-50 text-right">
+                    {task.outputs?.[field.key] ?? '—'}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
     </div>
   )
 }
